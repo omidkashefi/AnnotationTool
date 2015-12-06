@@ -275,6 +275,7 @@ public class RevisionUnit {
 		this.newSentence = newSentence;
 	}
 
+	@Override
 	public String toString() {
 		String msg = "Level " + this.revision_level + ":\n";
 		String revPurpose = RevisionPurpose
@@ -613,6 +614,7 @@ public class RevisionUnit {
 	 * Get the index label for the comparison of revisions
 	 * @return
 	 */
+	@Deprecated
 	public String getIndexLabel() {
 		String label = "OLD:";
 		for(Integer oldIndex: oldSentenceIndex) {

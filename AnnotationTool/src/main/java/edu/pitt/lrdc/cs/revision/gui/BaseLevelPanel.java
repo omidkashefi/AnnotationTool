@@ -1,14 +1,7 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -31,6 +24,7 @@ public class BaseLevelPanel extends JPanel implements LevelPanel {
 
 	ArrayList<RevisionUnit> currentRU = null;
 
+	@Override
 	public void registerRevision() {
 		ArrayList<SelectionUnit> sus = annotateBox.getSelectedUnits();
 		if (currentRU == null || currentRU.size() == 0) {
@@ -102,6 +96,7 @@ public class BaseLevelPanel extends JPanel implements LevelPanel {
 	}
 
 	class ListSelectionHandler implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 
 			ListSelectionModel lsm = (ListSelectionModel) e.getSource();

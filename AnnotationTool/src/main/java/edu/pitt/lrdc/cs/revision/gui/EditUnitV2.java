@@ -1,13 +1,7 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
 import javax.swing.*;
-
-import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 
 public class EditUnitV2 extends JPanel {
 	JLabel name;
@@ -45,6 +39,7 @@ public class EditUnitV2 extends JPanel {
 		add(this.name);
 	}*/
 	
+	@Override
 	public void setEnabled(boolean enabled) {
 		this.checkBox.setEnabled(enabled);
 	}

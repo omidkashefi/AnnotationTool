@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -22,7 +21,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import edu.pitt.cs.revision.util.RevisionMapFileGenerator;
 import edu.pitt.lrdc.cs.revision.alignment.model.HeatMapUnit;
-import edu.pitt.lrdc.cs.revision.gui.AdvBaseLevelPanelV2.ListSelectionHandler;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
@@ -43,6 +41,7 @@ class MyListItem {
 	public int revisionOp;
 	
 
+	@Override
 	public String toString() {
 		return sentenceStr;
 	}
@@ -530,6 +529,7 @@ public class ColoredListWrapper {
 			}
 		}
 
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 			if (!lsm.isSelectionEmpty()) {

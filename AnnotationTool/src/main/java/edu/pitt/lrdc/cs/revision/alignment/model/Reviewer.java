@@ -22,6 +22,7 @@ public class Reviewer implements Cloneable{
 		this.reviews.add((Review)rev.clone());
 	}
 	
+	@Override
 	public Object clone() throws CloneNotSupportedException{
 		Reviewer rv = (Reviewer)super.clone();
 		ArrayList<Review> newCopy = new ArrayList<Review>();
@@ -32,6 +33,7 @@ public class Reviewer implements Cloneable{
 		rv.setReviews(newCopy);
 		return rv;
 	}
+	@Override
 	public String toString() {
 		String msg = "Reviewer:"+reviewerName+"\n";
 		for(int i = 0;i<reviews.size();i++) {

@@ -323,8 +323,8 @@ public class KappaCalc {
 			String name = file1.getName();
 			if(name.startsWith(".DS_Store")) continue;
 			String file2 = folder2 + "/" + name;
-			RevisionDocument doc1 = reader.readDoc(file1.getAbsolutePath());
-			RevisionDocument doc2 = reader.readDoc(file2);
+			RevisionDocument doc1 = RevisionDocumentReader.readDoc(file1.getAbsolutePath());
+			RevisionDocument doc2 = RevisionDocumentReader.readDoc(file2);
 			int[][] tmpMatrix = buildRUMatrix(doc1, doc2, category);
 			for (int ii = 0; ii < tmpMatrix.length; ii++) {
 				for (int jj = 0; jj < tmpMatrix[ii].length; jj++) {

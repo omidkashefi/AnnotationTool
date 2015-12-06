@@ -24,12 +24,14 @@ public class FilePicker extends JPanel {
     public static final int MODE_OPEN = 1;
     public static final int MODE_SAVE = 2;
     
-    public void disable() {
+    @Override
+	public void disable() {
     	this.button.setEnabled(false);
     	this.textField.setEnabled(false);
     }
     
-    public void enable() {
+    @Override
+	public void enable() {
     	this.button.setEnabled(true);
     	this.textField.setEnabled(true);
     }

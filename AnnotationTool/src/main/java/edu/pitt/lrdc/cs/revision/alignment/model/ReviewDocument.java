@@ -23,6 +23,7 @@ public class ReviewDocument implements Cloneable{
 		this.reviewers.add((Reviewer)reviewer.clone());
 	}
 	
+	@Override
 	public Object clone() throws CloneNotSupportedException{
 		ReviewDocument doc = (ReviewDocument)super.clone();
 		ArrayList<Reviewer> revs = new ArrayList<Reviewer>();
@@ -34,6 +35,7 @@ public class ReviewDocument implements Cloneable{
 		return doc;
 	}
 	
+	@Override
 	public String toString() {
 		String msg = "Author:"+author+"\n";
 		for(int i = 0;i<reviewers.size();i++) {

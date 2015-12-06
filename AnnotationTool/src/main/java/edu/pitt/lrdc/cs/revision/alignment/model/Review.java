@@ -51,10 +51,12 @@ public class Review implements Cloneable{
 		this.backEvalScore = backEvalScore;
 	}
 	
+	@Override
 	public String toString() {
 		return "comment Name:"+this.shortCommentName+",comment:"+this.comment+",backEvalScore:"+this.backEvalScore;
 	}
 	
+	@Override
 	public Object clone() throws CloneNotSupportedException{
 		return super.clone();
 	}

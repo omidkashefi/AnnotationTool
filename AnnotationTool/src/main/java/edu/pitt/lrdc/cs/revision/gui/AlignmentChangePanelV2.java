@@ -1,10 +1,8 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.swing.Box;
@@ -16,13 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
-import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
 
 public class AlignmentChangePanelV2 extends JPanel {
 	private JList<MyListItem> oldSentenceList;

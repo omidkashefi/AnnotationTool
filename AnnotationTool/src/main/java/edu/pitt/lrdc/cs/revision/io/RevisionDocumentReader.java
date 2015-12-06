@@ -13,7 +13,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import edu.pitt.lrdc.cs.revision.agreement.KappaCalc;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;

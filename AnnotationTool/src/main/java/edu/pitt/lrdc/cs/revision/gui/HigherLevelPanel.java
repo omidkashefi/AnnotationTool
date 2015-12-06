@@ -9,22 +9,16 @@ package edu.pitt.lrdc.cs.revision.gui;
  */
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -32,8 +26,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
-import edu.pitt.lrdc.cs.revision.model.RevisionOp;
-import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
 
 public class HigherLevelPanel extends JPanel implements LevelPanel {
@@ -140,6 +132,7 @@ public class HigherLevelPanel extends JPanel implements LevelPanel {
 	private boolean firstSelected = true;
 
 	class ListSelectionHandler implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			registerRevision();
 			if (currentLevelUnits.getSelectedValue() != null) {
@@ -159,6 +152,7 @@ public class HigherLevelPanel extends JPanel implements LevelPanel {
 	}
 
 	class CandidateListSelectionHandler implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (candidates.getSelectedValue() != null) {
 				String label = candidates.getSelectedValue().toString();
@@ -171,6 +165,7 @@ public class HigherLevelPanel extends JPanel implements LevelPanel {
 	}
 
 	class ChildListSelectionHandler implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (childList.getSelectedValue() != null) {
 				String label = childList.getSelectedValue().toString();

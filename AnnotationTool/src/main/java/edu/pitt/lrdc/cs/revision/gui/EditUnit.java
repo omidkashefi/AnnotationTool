@@ -1,7 +1,6 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -93,6 +92,7 @@ public class EditUnit extends JPanel {
 		add(modifyButton);
 		add(nochangeButton);
 	}
+	@Override
 	public void setEnabled(boolean enabled) {
 		this.checkBox.setEnabled(enabled);
 	}

@@ -13,6 +13,7 @@ import javax.swing.JRadioButton;
  * @author zhf4pal
  *
  */
+@Deprecated
 public class JRadioGroup extends JPanel{
 	private ArrayList<String> options = new ArrayList<String>();
 	private ArrayList<JRadioButton> buttons = new ArrayList<JRadioButton>();

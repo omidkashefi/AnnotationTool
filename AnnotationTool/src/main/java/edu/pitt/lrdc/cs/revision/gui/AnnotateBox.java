@@ -13,9 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
-import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
 
@@ -102,6 +99,7 @@ public class AnnotateBox extends JPanel{
 		add(contentEUGroup);
 	}
 	
+	@Override
 	public void setEnabled(boolean enabled) {
 		Iterator<String> it = table.keySet().iterator();
 		while(it.hasNext()) {

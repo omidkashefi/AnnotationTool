@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -23,11 +22,9 @@ import org.apache.commons.lang.ArrayUtils;
 
 import edu.pitt.cs.revision.util.RevisionMapFileGenerator;
 import edu.pitt.lrdc.cs.revision.alignment.model.HeatMapUnit;
-import edu.pitt.lrdc.cs.revision.gui.AdvBaseLevelPanelV2.ListSelectionHandler;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
-import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
 
 /**
  * Wrapps the lists of sentences
@@ -471,6 +468,7 @@ public class AlignmentListWrapper {
 			}
 			// highlight();
 		}
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 			changeTheSelection(e);

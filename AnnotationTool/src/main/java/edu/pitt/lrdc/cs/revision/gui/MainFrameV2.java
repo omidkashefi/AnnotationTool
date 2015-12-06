@@ -1,6 +1,5 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -8,19 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.swing.*;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 
-import edu.pitt.lrdc.cs.revision.io.RestServiceUploader;
 import edu.pitt.lrdc.cs.revision.io.RevisionDocumentReader;
 import edu.pitt.lrdc.cs.revision.io.RevisionDocumentWriter;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
@@ -97,6 +92,7 @@ public class MainFrameV2 extends JFrame {
 		});
 
 		itemLoadService.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					JTextField addressField = new JTextField(
@@ -130,6 +126,7 @@ public class MainFrameV2 extends JFrame {
 		});
 
 		itemUploadService.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(MainFrameV2.this,
 						uploadToService(serverAddress, username));

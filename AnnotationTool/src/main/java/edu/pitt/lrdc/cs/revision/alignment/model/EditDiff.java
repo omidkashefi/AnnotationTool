@@ -53,6 +53,7 @@ class EditDiffUnit implements Comparable {
 		this.diff = diff;
 	}
 
+	@Override
 	public String toString() {
 		String str = "";
 		str += "Orig Line:" + origNo + ", New Line:" + lineNo + "\n";
@@ -141,6 +142,7 @@ public class EditDiff {
 		diffUnits = newDiffUnits;
 	}
 
+	@Override
 	public String toString() {
 		String str = "==================FILE:" + fileName
 				+ "==================\n";
