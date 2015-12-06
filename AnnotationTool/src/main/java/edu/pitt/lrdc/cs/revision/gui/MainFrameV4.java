@@ -300,9 +300,11 @@ public class MainFrameV4 extends JFrame {
 			fileName = fileName.substring(0, fileName.indexOf("-")).trim();
 		File folder = new File(path);
 		File[] subs = folder.listFiles();
-		for (File sub : subs) {
-			if (sub.getName().contains(fileName)) {
-				return sub.getAbsolutePath();
+		if (subs != null) {
+			for (File sub : subs) {
+				if (sub.getName().contains(fileName)) {
+					return sub.getAbsolutePath();
+				}
 			}
 		}
 		return null;
@@ -320,6 +322,7 @@ public class MainFrameV4 extends JFrame {
 		File parentFolder = f.getParentFile();
 		String reviewPath = parentFolder.getAbsolutePath() + "/review";
 		String rPath = findMatchedFile(f.getName(), reviewPath);
+		if(rPath!=null)
 		reviewD = ReviewProcessor.readReviewDocument(rPath);
 
 		getContentPane().setLayout(

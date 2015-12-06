@@ -318,17 +318,19 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 	}
 
 	public void showReviews() {
-		HashSet<String> reviewStrs = reviewDoc.getReviewStrs(
-				wrapper.getOldSelectedIndexes(),
-				wrapper.getNewSelectedIndexes());
-		if (reviewStrs == null || reviewStrs.size() == 0) {
-			annotateBox.displayReviews("No reviews aligned");
-		} else {
-			String txt = "";
-			for (String reviewStr : reviewStrs) {
-				txt += reviewStr.trim() + "\n";
+		if (reviewDoc != null) {
+			HashSet<String> reviewStrs = reviewDoc.getReviewStrs(
+					wrapper.getOldSelectedIndexes(),
+					wrapper.getNewSelectedIndexes());
+			if (reviewStrs == null || reviewStrs.size() == 0) {
+				annotateBox.displayReviews("No reviews aligned");
+			} else {
+				String txt = "";
+				for (String reviewStr : reviewStrs) {
+					txt += reviewStr.trim() + "\n";
+				}
+				annotateBox.displayReviews(txt);
 			}
-			annotateBox.displayReviews(txt);
 		}
 	}
 
@@ -347,11 +349,16 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 		// ArrayList<Integer> newIndiceArr = wrapper.getNewSelectedIndexes();
 		// AlignmentChangePanel acp = new AlignmentChangePanel(doc,
 		// oldIndiceArr, newIndiceArr);
-
-		ReviewChangePanel acp = new ReviewChangePanel(reviewDoc,
-				wrapper.getOldSelectedIndexes(),
-				wrapper.getNewSelectedIndexes());
-		frame.setContentPane(acp);
-		frame.show();
+		if (reviewDoc != null) {
+			ReviewChangePanel acp = new ReviewChangePanel(reviewDoc,
+					wrapper.getOldSelectedIndexes(),
+					wrapper.getNewSelectedIndexes());
+			frame.setContentPane(acp);
+			frame.show();
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"Does not have reviews assigned", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
