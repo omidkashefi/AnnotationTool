@@ -28,6 +28,7 @@ public class CommentBoxReview {
 	}
 	
 	public void addReview(ReviewItem item) {
+		item.setParentContent(this.content);
 		this.reviews.add(item);
 	}
 	

@@ -9,10 +9,19 @@ public class ReviewItem {
 	private String content;
 	private List<ReviewTarget> targets;
 	private List<ReviewSolution> solutions;
+	private String parentContent;
 	private String type;
 	
 	public String getType() {
 		return type;
+	}
+
+	public String getParentContent() {
+		return parentContent;
+	}
+
+	public void setParentContent(String parentContent) {
+		this.parentContent = parentContent;
 	}
 
 	public void setType(String type) {
