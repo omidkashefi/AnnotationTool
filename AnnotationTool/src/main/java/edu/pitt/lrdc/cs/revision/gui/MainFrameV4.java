@@ -248,6 +248,7 @@ public class MainFrameV4 extends JFrame {
 		FileWriter fr = new FileWriter(s);
 		fr.flush();
 		fr.close();
+		
 		// load(ff.getAbsolutePath());
 		MainFrameV4.this.load(ff.getAbsolutePath());
 		currentPath = ff.getAbsolutePath();
