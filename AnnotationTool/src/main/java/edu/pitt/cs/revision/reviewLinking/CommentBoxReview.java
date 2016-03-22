@@ -35,7 +35,7 @@ public class CommentBoxReview {
 	public ReviewItem getReview(int startLoc, int endLoc) {
 		for(int i = 0;i<reviews.size();i++) {
 			ReviewItem item = reviews.get(i);
-			if(startLoc>=item.getStart()&& endLoc<=item.getEnd()) {
+			if(startLoc>=item.getStart()-2 && endLoc<=item.getEnd()+2 ) { //allows minor annotation mistake
 				return item;
 			}
 		}

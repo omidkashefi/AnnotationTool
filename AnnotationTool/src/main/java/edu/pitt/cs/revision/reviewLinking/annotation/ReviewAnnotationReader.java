@@ -66,6 +66,27 @@ public class ReviewAnnotationReader {
 		return cbrs.get(cbrs.size() - 1);
 	}
 
+	public static Hashtable<String, List<ReviewItem>> readReviewItems(
+			String fileName) {
+		List<CommentBoxReview> cbrs = readReviews(fileName);
+		Hashtable<String, List<ReviewItem>> table = new Hashtable<String, List<ReviewItem>>();
+		for (CommentBoxReview cbr : cbrs) {
+			List<ReviewItem> reviews = cbr.getReviews();
+			for (ReviewItem review : reviews) {
+				String reviewType = review.getType();
+				List<ReviewItem> entry;
+				if (table.containsKey(reviewType)) {
+					entry = table.get(reviewType);
+				} else {
+					entry = new ArrayList<ReviewItem>();
+					table.put(reviewType, entry);
+				}
+				entry.add(review);
+			}
+		}
+		return table;
+	}
+
 	public static List<CommentBoxReview> readReviews(String fileName) {
 		List<CommentBoxReview> boxReviews = new ArrayList<CommentBoxReview>();
 		try {
@@ -177,12 +198,34 @@ public class ReviewAnnotationReader {
 
 			// Assigning targets and solutions to reviews
 			for (ReviewTarget rt : targets) {
-				getReview(boxReviews, locsInt, rt.getStart()).getReview(
-						rt.getStart(), rt.getEnd()).addTarget(rt);
+				CommentBoxReview cbr = getReview(boxReviews, locsInt,
+						rt.getStart());
+				if (cbr != null) {
+					ReviewItem ri = cbr.getReview(rt.getStart(), rt.getEnd());
+					if (ri != null)
+						ri.addTarget(rt);
+					else {
+						System.err.println("Review item not found:"
+								+ rt.getStart() + "," + rt.getEnd());
+					}
+				} else {
+					System.err.println("CBR not found:" + rt.getStart());
+				}
 			}
 			for (ReviewSolution rs : solutions) {
-				getReview(boxReviews, locsInt, rs.getStart()).getReview(
-						rs.getStart(), rs.getEnd()).addSolution(rs);
+				CommentBoxReview cbr = getReview(boxReviews, locsInt,
+						rs.getStart());
+				if (cbr != null) {
+					ReviewItem ri = cbr.getReview(rs.getStart(), rs.getEnd());
+					if (ri != null)
+						ri.addSolution(rs);
+					else {
+						System.err.println("Review item not found:"
+								+ rs.getStart() + "," + rs.getEnd());
+					}
+				} else {
+					System.err.println("CBR not found:" + rs.getStart());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

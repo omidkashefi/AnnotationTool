@@ -12,6 +12,64 @@ public class ReviewRevisionDocument {
 		return code;
 	}
 	
+	public String getIndiceStr(ArrayList<Integer> indices) {
+		String indiceStr = "";
+		for (Integer oldIndex : indices) {
+			if (oldIndex != -1) {
+				indiceStr += Integer.toString(oldIndex) + "\t";
+			}
+		}
+		return indiceStr.trim();
+	}
+	
+	public List<ReviewItemRevision> getRelatedReviews(RevisionUnit ru) {
+		String oldIndexStr = getIndiceStr(ru.getOldSentenceIndex());
+		String newIndexStr = getIndiceStr(ru.getNewSentenceIndex());
+		List<ReviewItemRevision> reviewList = new ArrayList<ReviewItemRevision>();
+		for(ReviewItemRevision rr: reviewRevisions) {
+			if(rr.getOldIndiceStr().equals(oldIndexStr) && rr.getNewIndiceStr().equals(newIndexStr)) {
+				reviewList.add(rr);
+			}
+		}
+		return reviewList;
+	}
+
+	public List<ReviewItemRevision> getRelatedReviews(ArrayList<Integer> oldIndices, ArrayList<Integer> newIndices) {
+		String oldIndexStr = getIndiceStr(oldIndices);
+		String newIndexStr = getIndiceStr(newIndices);
+		List<ReviewItemRevision> reviewList = new ArrayList<ReviewItemRevision>();
+		for(ReviewItemRevision rr: reviewRevisions) {
+			if(rr.getOldIndiceStr().equals(oldIndexStr) && rr.getNewIndiceStr().equals(newIndexStr)) {
+				reviewList.add(rr);
+			}
+		}
+		return reviewList;
+	}
+	
+	
+	public void removeReviews(ArrayList<Integer> oldIndices, ArrayList<Integer> newIndices) {
+		String oldIndexStr = getIndiceStr(oldIndices);
+		String newIndexStr = getIndiceStr(newIndices);
+		List<ReviewItemRevision> toRemove = new ArrayList<ReviewItemRevision>();
+		for(ReviewItemRevision rr: reviewRevisions) {
+			if(rr.getOldIndiceStr().equals(oldIndexStr) && rr.getNewIndiceStr().equals(newIndexStr)) {
+				toRemove.add(rr);
+			}
+		}
+		for(ReviewItemRevision rr: toRemove) {
+			reviewRevisions.remove(rr);
+		}
+	}
+	
+	public String getRelatedReviewStr(ArrayList<Integer> oldIndices, ArrayList<Integer> newIndices) {
+		List<ReviewItemRevision> reviewList = getRelatedReviews(oldIndices, newIndices);
+		String reviewStr = "";
+		for(ReviewItemRevision review: reviewList) {
+			reviewStr += review.getItem().getContent() + "\n";
+		}
+		return reviewStr;
+	}
+	
 	public List<ReviewItemRevision> getReviewRevisions() {
 		return reviewRevisions;
 	}
@@ -33,5 +91,6 @@ public class ReviewRevisionDocument {
 
 	public void addReviewItemRevision(ReviewItemRevision rr) {
 		this.reviewRevisions.add(rr);
+		rr.setDocName(this.docName);
 	}
 }

@@ -4,55 +4,96 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Iterator;
+
+import edu.pitt.cs.revision.reviewLinking.ReviewItem;
 import edu.pitt.lrdc.cs.revision.model.ReviewDocument;
+import edu.pitt.lrdc.cs.revision.model.ReviewItemRevision;
 import edu.pitt.lrdc.cs.revision.model.ReviewRevision;
+import edu.pitt.lrdc.cs.revision.model.ReviewRevisionDocument;
 
 public class ReviewProcessor {
-	public static ReviewDocument readReviewDocument(String path)
+	/*
+	 * public static ReviewDocument readReviewDocument(String path) throws
+	 * IOException { ReviewDocument revDoc = new ReviewDocument(); XSSFWorkbook
+	 * xwb = new XSSFWorkbook(path); XSSFSheet sheet0 = xwb.getSheetAt(0);
+	 * 
+	 * revDoc.setDocName(path); for (int i = 1; i <
+	 * sheet0.getPhysicalNumberOfRows(); i++) { ReviewRevision rr = new
+	 * ReviewRevision(); XSSFRow row = sheet0.getRow(i); String reviewNoStr =
+	 * row.getCell(0).getRawValue(); String reviewContentStr =
+	 * row.getCell(1).getStringCellValue(); String revisionNoStr =
+	 * row.getCell(2).getRawValue(); String docStr =
+	 * row.getCell(3).getStringCellValue(); String oldIndiceStr =
+	 * row.getCell(4).getStringCellValue(); String newIndiceStr =
+	 * row.getCell(5).getStringCellValue();
+	 * 
+	 * rr.setDocName(docStr); rr.setOldIndices(oldIndiceStr);
+	 * rr.setNewIndices(newIndiceStr);
+	 * rr.setReviewNo((int)Double.parseDouble(reviewNoStr));
+	 * rr.setReviewStr(reviewContentStr);
+	 * rr.setRevisionNo((int)Double.parseDouble(revisionNoStr));
+	 * 
+	 * revDoc.addReview(rr); } return revDoc; }
+	 */
+
+	public static ReviewRevisionDocument readReviewDocument(String path)
 			throws IOException {
-		ReviewDocument revDoc = new ReviewDocument();
+		ReviewRevisionDocument revDoc = new ReviewRevisionDocument();
 		XSSFWorkbook xwb = new XSSFWorkbook(path);
 		XSSFSheet sheet0 = xwb.getSheetAt(0);
 
 		revDoc.setDocName(path);
 		for (int i = 1; i < sheet0.getPhysicalNumberOfRows(); i++) {
-			ReviewRevision rr = new ReviewRevision();
+			ReviewItemRevision rr = new ReviewItemRevision();
 			XSSFRow row = sheet0.getRow(i);
-			String reviewNoStr = row.getCell(0).getRawValue();
+			String docNameStr = row.getCell(0).getRawValue();
 			String reviewContentStr = row.getCell(1).getStringCellValue();
-			String revisionNoStr = row.getCell(2).getRawValue();
-			String docStr = row.getCell(3).getStringCellValue();
-			String oldIndiceStr = row.getCell(4).getStringCellValue();
-			String newIndiceStr = row.getCell(5).getStringCellValue();
+			String reviewTargetStr = row.getCell(2).getStringCellValue();
+			String reviewSolutionStr = row.getCell(3).getStringCellValue();
+			String commentStr = row.getCell(4).getRawValue();
+			String reviewTypeStr = row.getCell(5).getStringCellValue();
+			String revisionTypeStr = row.getCell(6).getStringCellValue();
+			String oldIndiceStr = row.getCell(7).getStringCellValue();
+			String newIndiceStr = row.getCell(8).getStringCellValue();
 
-			rr.setDocName(docStr);
+			rr.setDocName(docNameStr);
 			rr.setOldIndices(oldIndiceStr);
 			rr.setNewIndices(newIndiceStr);
-			rr.setReviewNo((int)Double.parseDouble(reviewNoStr));
-			rr.setReviewStr(reviewContentStr);
-			rr.setRevisionNo((int)Double.parseDouble(revisionNoStr));
+			rr.setRevisionType(revisionTypeStr);
 
-			revDoc.addReview(rr);
+			ReviewItem item = new ReviewItem();
+			item.setContent(reviewContentStr);
+			item.setParentContent(commentStr);
+			item.setTarget(reviewTargetStr);
+			item.setSolutions(reviewSolutionStr);
+			item.setType(reviewTypeStr);
+			rr.setItem(item);
+
+			revDoc.addReviewItemRevision(rr);
 		}
 		return revDoc;
 	}
 
-	public static void writeReviewDocument(ReviewDocument revDoc, String path)
-			throws IOException {
-		ArrayList<ReviewRevision> reviews = revDoc.getReviews();
+	public static void writeReviewDocument(ReviewRevisionDocument revDoc,
+			String path) throws IOException {
+		List<ReviewItemRevision> reviews = revDoc.getReviewRevisions();
 
 		FileOutputStream fileOut = new FileOutputStream(path);
 		ArrayList<String> cols = new ArrayList<String>();
-		cols.add("Review No");
-		cols.add("Review Content");
-		cols.add("Revision No");
 		cols.add("Document Name");
+		cols.add("Review Content");
+		cols.add("Review Target");
+		cols.add("Review Solution");
+		cols.add("Comment Content");
+		cols.add("Review Type");
+		cols.add("Revision Type");
 		cols.add("Old Index Str");
 		cols.add("New Index Str");
 
@@ -67,20 +108,54 @@ public class ReviewProcessor {
 
 		// Set up sentence contents and sentence index
 		for (int i = 1; i <= reviews.size(); i++) {
-			ReviewRevision rev = reviews.get(i - 1);
+			ReviewItemRevision rev = reviews.get(i - 1);
 			XSSFRow row0 = sheet0.createRow(i);
-			row0.createCell(0).setCellValue(rev.getReviewNo());
-			row0.createCell(1).setCellValue(rev.getReviewStr());
-			row0.createCell(2).setCellValue(rev.getRevisionNo());
-			row0.createCell(3).setCellValue(rev.getDocName());
-			row0.createCell(4).setCellValue(rev.getOldIndiceStr());
-			row0.createCell(5).setCellValue(rev.getNewIndiceStr());
+			row0.createCell(0).setCellValue(rev.getDocName());
+			row0.createCell(1).setCellValue(rev.getItem().getContent());
+			row0.createCell(2).setCellValue(rev.getItem().getTargetStr());
+			row0.createCell(3).setCellValue(rev.getItem().getSolutionStr());
+			row0.createCell(4).setCellValue(rev.getItem().getParentContent());
+			row0.createCell(5).setCellValue(rev.getItem().getType());
+			row0.createCell(6).setCellValue(rev.getRevisionType());
+			row0.createCell(7).setCellValue(rev.getOldIndiceStr());
+			row0.createCell(8).setCellValue(rev.getNewIndiceStr());
 		}
 
 		xwb.write(fileOut);
 		fileOut.flush();
 		fileOut.close();
 	}
+
+	/*
+	 * public static void writeReviewDocument(ReviewDocument revDoc, String
+	 * path) throws IOException { ArrayList<ReviewRevision> reviews =
+	 * revDoc.getReviews();
+	 * 
+	 * FileOutputStream fileOut = new FileOutputStream(path); ArrayList<String>
+	 * cols = new ArrayList<String>(); cols.add("Review No");
+	 * cols.add("Review Content"); cols.add("Revision No");
+	 * cols.add("Document Name"); cols.add("Old Index Str");
+	 * cols.add("New Index Str");
+	 * 
+	 * XSSFWorkbook xwb = new XSSFWorkbook(); XSSFSheet sheet0 =
+	 * xwb.createSheet("Review"); // Set up headers XSSFRow header0 =
+	 * sheet0.createRow(0);
+	 * 
+	 * for (int i = 0; i < cols.size(); i++) {
+	 * header0.createCell(i).setCellValue(cols.get(i)); }
+	 * 
+	 * // Set up sentence contents and sentence index for (int i = 1; i <=
+	 * reviews.size(); i++) { ReviewRevision rev = reviews.get(i - 1); XSSFRow
+	 * row0 = sheet0.createRow(i);
+	 * row0.createCell(0).setCellValue(rev.getReviewNo());
+	 * row0.createCell(1).setCellValue(rev.getReviewStr());
+	 * row0.createCell(2).setCellValue(rev.getRevisionNo());
+	 * row0.createCell(3).setCellValue(rev.getDocName());
+	 * row0.createCell(4).setCellValue(rev.getOldIndiceStr());
+	 * row0.createCell(5).setCellValue(rev.getNewIndiceStr()); }
+	 * 
+	 * xwb.write(fileOut); fileOut.flush(); fileOut.close(); }
+	 */
 
 	public static Hashtable<String, Double[]> getValues(
 			String implementationXLSX) throws IOException {
@@ -169,12 +244,14 @@ public class ReviewProcessor {
 			String key = it.next();
 			ReviewDocument doc = docTable.get(key);
 			String output = outputPath + "/" + doc.getDocName();
-			if(!output.endsWith(".xlsx")) output += ".xlsx";
-			writeReviewDocument(doc, output);
+			if (!output.endsWith(".xlsx"))
+				output += ".xlsx";
+			// writeReviewDocument(doc, output);
 			reviewDocNames.add(doc.getDocName());
 		}
 
-		FileOutputStream fileOut = new FileOutputStream(outputPath+"/stat.xlsx");
+		FileOutputStream fileOut = new FileOutputStream(outputPath
+				+ "/stat.xlsx");
 		ArrayList<String> cols = new ArrayList<String>();
 		cols.add("docName");
 		cols.add("D1Score");

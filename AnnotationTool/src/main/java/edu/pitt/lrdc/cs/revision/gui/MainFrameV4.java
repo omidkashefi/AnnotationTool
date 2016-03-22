@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Hashtable;
+import java.util.List;
+
 import javax.swing.*;
 import javax.ws.rs.core.MediaType;
 
@@ -16,10 +19,13 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 
+import edu.pitt.cs.revision.reviewLinking.ReviewItem;
+import edu.pitt.cs.revision.reviewLinking.annotation.ReviewAnnotationReader;
 import edu.pitt.lrdc.cs.revision.io.ReviewProcessor;
 import edu.pitt.lrdc.cs.revision.io.RevisionDocumentReader;
 import edu.pitt.lrdc.cs.revision.io.RevisionDocumentWriter;
 import edu.pitt.lrdc.cs.revision.model.ReviewDocument;
+import edu.pitt.lrdc.cs.revision.model.ReviewRevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 
 public class MainFrameV4 extends JFrame {
@@ -32,7 +38,9 @@ public class MainFrameV4 extends JFrame {
 	private String currentPath = null;
 	private String serverAddress = "http://lrdc-apps.lrdc.pitt.edu:8080";
 	private String username = null;
-	private ReviewDocument reviewD = null;
+	private ReviewRevisionDocument reviewD = null;
+	private Hashtable<String, List<ReviewItem>> reviewTable = null;
+
 
 	public MainFrameV4() {
 		setTitle("Revision Annotation Tool");
@@ -321,11 +329,28 @@ public class MainFrameV4 extends JFrame {
 
 		File f = new File(path);
 		File parentFolder = f.getParentFile();
-		String reviewPath = parentFolder.getAbsolutePath() + "/review";
-		String rPath = findMatchedFile(f.getName(), reviewPath);
+		String reviewPath = parentFolder.getAbsolutePath() + "/reviews";
+		String reviewLinkPath = parentFolder.getAbsolutePath() + "/reviewlinking";
+		String rPath = findMatchedFile(f.getName(), reviewLinkPath);
 		if(rPath!=null)
-		reviewD = ReviewProcessor.readReviewDocument(rPath);
-
+			reviewD = ReviewProcessor.readReviewDocument(rPath);
+		if(reviewD == null) {
+			reviewD = new ReviewRevisionDocument();
+			String fileName = f.getName();
+			if (fileName.contains("Annotation_")) {
+				fileName = fileName.replaceAll("Annotation_", "");
+			}
+			if (fileName.contains("-"))
+				fileName = fileName.substring(0, fileName.indexOf("-")).trim();
+			fileName.replaceAll("\\.txt", "");
+			fileName.replaceAll("\\.xlsx", "");
+			reviewD.setDocName(reviewLinkPath+"/"+fileName + ".xlsx");
+		}
+		String lPath = findMatchedFile(f.getName(), reviewPath);
+		if(lPath!=null) 
+			reviewTable = ReviewAnnotationReader.readReviewItems(lPath);
+		
+		
 		getContentPane().setLayout(
 				new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 		/*
@@ -336,11 +361,11 @@ public class MainFrameV4 extends JFrame {
 		 * contentPane.add(tabbedPane);
 		 */
 		if (panel == null) {
-			panel = new AdvBaseLevelPanelV4(rd, reviewD);
+			panel = new AdvBaseLevelPanelV4(rd, reviewD, reviewTable);
 			// this.add(panel);
 		} else {
 			this.remove(panel);
-			panel = new AdvBaseLevelPanelV4(rd, reviewD);
+			panel = new AdvBaseLevelPanelV4(rd, reviewD, reviewTable);
 			// this.add(panel);
 		}
 		// String[] drafts = rd.regenerateDrafts();

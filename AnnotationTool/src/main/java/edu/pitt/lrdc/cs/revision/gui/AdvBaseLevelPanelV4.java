@@ -2,10 +2,14 @@ package edu.pitt.lrdc.cs.revision.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
+
 import java.util.*;
 
+import edu.pitt.cs.revision.reviewLinking.ReviewItem;
 import edu.pitt.lrdc.cs.revision.model.ReviewDocument;
+import edu.pitt.lrdc.cs.revision.model.ReviewRevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
@@ -16,7 +20,9 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 	JSplitPane splitPane;
 
 	RevisionDocument doc; // Data model
-	ReviewDocument reviewDoc;
+	ReviewRevisionDocument reviewDoc;
+	Hashtable<String, List<ReviewItem>> reviewTable;
+
 	JButton changeAlignmentButton; // Change alignment
 	JButton reviewAlignmentButton;
 	JPanel buttonPanel;
@@ -169,9 +175,12 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 	 * /2); } }); }
 	 */
 
-	public AdvBaseLevelPanelV4(RevisionDocument doc, ReviewDocument reviewDoc) {
+	public AdvBaseLevelPanelV4(RevisionDocument doc,
+			ReviewRevisionDocument reviewDoc,
+			Hashtable<String, List<ReviewItem>> reviewTable) {
 		this.doc = doc;
 		this.reviewDoc = reviewDoc;
+		this.reviewTable = reviewTable;
 		wrapper = new ColoredListWrapperV2(this);
 		// ListSelectionHandler listHandler = new ListSelectionHandler();
 		// sentenceList.getSelectionModel().addListSelectionListener(listHandler);
@@ -319,17 +328,13 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 
 	public void showReviews() {
 		if (reviewDoc != null) {
-			HashSet<String> reviewStrs = reviewDoc.getReviewStrs(
+			String reviewStr = reviewDoc.getRelatedReviewStr(
 					wrapper.getOldSelectedIndexes(),
 					wrapper.getNewSelectedIndexes());
-			if (reviewStrs == null || reviewStrs.size() == 0) {
+			if (reviewStr == null || reviewStr.length() == 0) {
 				annotateBox.displayReviews("No reviews aligned");
 			} else {
-				String txt = "";
-				for (String reviewStr : reviewStrs) {
-					txt += reviewStr.trim() + "\n";
-				}
-				annotateBox.displayReviews(txt);
+				annotateBox.displayReviews(reviewStr);
 			}
 		}
 	}
@@ -349,10 +354,10 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 		// ArrayList<Integer> newIndiceArr = wrapper.getNewSelectedIndexes();
 		// AlignmentChangePanel acp = new AlignmentChangePanel(doc,
 		// oldIndiceArr, newIndiceArr);
-		if (reviewDoc != null) {
-			ReviewChangePanel acp = new ReviewChangePanel(reviewDoc,
+		if (reviewTable != null) {
+			ReviewChangePanel acp = new ReviewChangePanel(doc, reviewDoc,
 					wrapper.getOldSelectedIndexes(),
-					wrapper.getNewSelectedIndexes());
+					wrapper.getNewSelectedIndexes(),reviewTable);
 			frame.setContentPane(acp);
 			frame.show();
 		} else {

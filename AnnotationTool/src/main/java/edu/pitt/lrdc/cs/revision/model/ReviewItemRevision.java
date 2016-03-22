@@ -10,6 +10,7 @@ public class ReviewItemRevision {
 	private String docName;
 	private ArrayList<Integer> oldIndices;
 	private ArrayList<Integer> newIndices;
+	private String revisionType;
 
 	public ReviewItemRevision() {
 		oldIndices = new ArrayList<Integer>();
@@ -19,11 +20,19 @@ public class ReviewItemRevision {
 	public ReviewItem getItem() {
 		return item;
 	}
-	
+
+	public String getRevisionType() {
+		return revisionType;
+	}
+
+	public void setRevisionType(String revisionType) {
+		this.revisionType = revisionType;
+	}
+
 	public void setItem(ReviewItem item) {
 		this.item = item;
 	}
-	
+
 	public int getRevisionNo() {
 		return revisionNo;
 	}
