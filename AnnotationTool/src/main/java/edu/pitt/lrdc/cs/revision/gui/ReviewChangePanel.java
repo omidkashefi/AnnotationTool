@@ -49,7 +49,13 @@ import edu.pitt.lrdc.cs.revision.model.ReviewRevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
+/**
+ * Review linking panel
+ * @author zhangfan
+ *
+ */
 
+//code borrowed from http://www.java2s.com/Code/Java/Swing-JFC/CheckBoxNodeTreeSample.htm
 class CheckBoxNodeRenderer implements TreeCellRenderer {
 	  private JCheckBox leafRenderer = new JCheckBox();
 

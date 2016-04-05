@@ -334,6 +334,9 @@ public class MainFrameV4 extends JFrame {
 		String rPath = findMatchedFile(f.getName(), reviewLinkPath);
 		if(rPath!=null)
 			reviewD = ReviewProcessor.readReviewDocument(rPath);
+		else 
+			reviewD = null;
+		
 		if(reviewD == null) {
 			reviewD = new ReviewRevisionDocument();
 			String fileName = f.getName();
