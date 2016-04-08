@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.CellEditor;
 import javax.swing.DefaultListModel;
@@ -28,6 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
@@ -64,6 +66,11 @@ class CheckBoxNodeRenderer implements TreeCellRenderer {
 	  Color selectionBorderColor, selectionForeground, selectionBackground,
 	      textForeground, textBackground;
 
+	  ReviewChangePanel rcp;
+	  public void setReviewChangePanel(ReviewChangePanel rcp) {
+		  this.rcp = rcp;
+	  }
+	  
 	  protected JCheckBox getLeafRenderer() {
 	    return leafRenderer;
 	  }
@@ -115,6 +122,8 @@ class CheckBoxNodeRenderer implements TreeCellRenderer {
 	          CheckBoxNode node = (CheckBoxNode) userObject;
 	          leafRenderer.setText(node.getText());
 	          leafRenderer.setSelected(node.isSelected());
+	          if(rcp!=null)
+	          rcp.showDetail(node.getText());
 	        }
 	      }
 	      returnValue = leafRenderer;
@@ -136,6 +145,11 @@ class CheckBoxNodeRenderer implements TreeCellRenderer {
 
 	  public CheckBoxNodeEditor(JTree tree) {
 	    this.tree = tree;
+	  }
+	  
+	  ReviewChangePanel rcp;
+	  public void setReviewChangePanel(ReviewChangePanel rcp) {
+		  this.rcp = rcp;
 	  }
 
 	  public Object getCellEditorValue() {
@@ -174,7 +188,9 @@ class CheckBoxNodeRenderer implements TreeCellRenderer {
 	      public void itemStateChanged(ItemEvent itemEvent) {
 	        if (stopCellEditing()) {
 	          fireEditingStopped();
+	         
 	        }
+	        
 	      }
 	    };
 	    if (editor instanceof JCheckBox) {
@@ -242,8 +258,8 @@ public class ReviewChangePanel extends JPanel {
 
 	private JTree tree;
 
-	private JTextPane revisionDetailPane;
-	private JTextPane detailPane;
+	private JTextArea revisionDetailPane;
+	private JTextArea detailPane;
 
 	private JButton confirmButton;
 	private JButton cancelButton;
@@ -284,19 +300,32 @@ public class ReviewChangePanel extends JPanel {
 		tree.setEnabled(true);
 		CheckBoxNodeRenderer renderer = new CheckBoxNodeRenderer();
 		tree.setCellRenderer(renderer);
+		renderer.setReviewChangePanel(this);
 		
 		tree.setCellEditor(new CheckBoxNodeEditor(tree));
 	    tree.setEditable(true);
 
-		revisionDetailPane = new JTextPane();
-		detailPane = new JTextPane();
+	    JPanel revisionDetailPanel = new JPanel();
+		revisionDetailPane = new JTextArea(5,100);
+		
+		revisionDetailPane.setLineWrap(true);
+		revisionDetailPane.setWrapStyleWord(true);
+		JPanel detailPanel = new JPanel();
+		detailPane = new JTextArea(5,100);
+		detailPane.setLineWrap(true);
+		detailPane.setWrapStyleWord(true);
+		
 		String revisionDetail = "Revision:\n";
 		String oldSentence = doc.getOldSentences(oldIndices);
 		String newSentence = doc.getNewSentences(newIndices);
-		revisionDetail += "OLD" + oldSentence + "\n";
-		revisionDetail += "NEW:" + newSentence + "\n";
+		revisionDetail += "OLD: " + oldSentence + "\n";
+		revisionDetail += "NEW: " + newSentence + "\n";
 		revisionDetailPane.setText(revisionDetail);
-
+		revisionDetailPanel.add(revisionDetailPane);
+		revisionDetailPanel.setBorder(BorderFactory.createTitledBorder("Revision Details"));
+		detailPanel.add(detailPane);
+		detailPanel.setBorder(BorderFactory.createTitledBorder("Review Details"));
+		
 		loadReviews();
 
 		JPanel confirmPanel = new JPanel();
@@ -323,8 +352,8 @@ public class ReviewChangePanel extends JPanel {
 		setAllNodes();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(tree);
-		this.add(revisionDetailPane);
-		this.add(detailPane);
+		this.add(revisionDetailPanel);
+		this.add(detailPanel);
 		this.add(confirmPanel);
 	}
 
