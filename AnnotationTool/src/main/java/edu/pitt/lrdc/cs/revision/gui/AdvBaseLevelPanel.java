@@ -374,8 +374,9 @@ public class AdvBaseLevelPanel extends JPanel implements LevelPanel {
 				 * newRU.setOldSentenceIndex(oldIndexes); currentRU.add(newRU);
 				 * } } }
 				 */
-				annotateContentDetail.setOldSentence(oldSentence);
-				annotateContentDetail.setNewSentence(newSentence);
+				//annotateContentDetail.setOldSentence(oldSentence);
+				//annotateContentDetail.setNewSentence(newSentence);
+				annotateContentDetail.setSentneces(oldSentence, newSentence); 
 				if (oldSentence.trim().equals(newSentence.trim())) {
 					annotateBox.setEnabled(false);
 					annotateBox.display("Two sentences are identical");
