@@ -221,7 +221,7 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 		sentenceBox.add(newPane);
 		// sentenceBox.add(splitPane);
 		// sentenceBox.add(splitScroll);
-		annotateContentDetail = new ContentBox(BoxLayout.Y_AXIS);
+		annotateContentDetail = new ContentBox(BoxLayout.Y_AXIS, this);
 		// levelPanel = new LevelDemoPanel(doc, 0);
 		// levelPanel.boundPanel(this);
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
