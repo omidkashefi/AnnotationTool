@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Stack;
 
+import edu.pitt.lrdc.cs.revision.gui.SubsententialRevisionUnit;
+
 /**
  * The unit of a revision, a nested data structure
  * 
@@ -43,6 +45,8 @@ public class RevisionUnit {
 	private RevisionUnit root; // pointer to the ultra root node (Not the parent)
 
 	private ArrayList<RevisionUnit> units = new ArrayList<RevisionUnit>();
+
+	private ArrayList<SubsententialRevisionUnit> subsententialUnits = new ArrayList<SubsententialRevisionUnit>();
 
 	/**
 	 * This attribute is needed for the GUI annotation tool
@@ -257,6 +261,22 @@ public class RevisionUnit {
 	 */
 	public void addUnit(RevisionUnit unit) {
 		this.units.add(unit);
+	}
+
+	public void addSubsententialUnit(SubsententialRevisionUnit unit) {
+		this.subsententialUnits.add(unit);
+	}
+	
+	public void removeSubsententialUnit(SubsententialRevisionUnit rmUnit) {
+		this.subsententialUnits.remove(rmUnit);
+	}
+	
+	public ArrayList<SubsententialRevisionUnit> getSubsententialUnits() {
+		return this.subsententialUnits;
+	}
+
+	public void clearSubsententialUnits() {
+		this.subsententialUnits.clear();
 	}
 
 	public String getOldSentence() {
