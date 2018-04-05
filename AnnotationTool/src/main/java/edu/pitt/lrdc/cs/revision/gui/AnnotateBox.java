@@ -2,6 +2,8 @@ package edu.pitt.lrdc.cs.revision.gui;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -9,6 +11,7 @@ import java.util.Iterator;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,6 +37,29 @@ public class AnnotateBox extends JPanel{
 		table.put(purposeName, new EditUnitV2(purposeName,ColorConstants.getColor(RevisionPurpose.PRECISION)));
 		purposeName = RevisionPurpose.getPurposeName(RevisionPurpose.UNKNOWN);
 		table.put(purposeName, new EditUnitV2(purposeName,ColorConstants.getColor(RevisionPurpose.UNKNOWN)));
+		
+		//force selecting only one check box
+		Iterator<String> it = table.keySet().iterator();
+		while(it.hasNext()) {
+			JCheckBox check = table.get(it.next()).checkBox;
+			check.addItemListener(new ItemListener() {
+				
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+			        JCheckBox chk = (JCheckBox)e.getItem();
+					if (chk.isSelected()) {
+						Iterator<String> it2 = table.keySet().iterator();
+			    		while(it2.hasNext()) {
+			    			JCheckBox cb = table.get(it2.next()).checkBox;
+			    			if (cb != chk) {
+			    				cb.setSelected(false);
+			    			}
+			    		}
+			        }
+				}
+			});
+			
+		}
 	}
 	
 	public void display(String text) {
@@ -120,6 +146,19 @@ public class AnnotateBox extends JPanel{
 			RevisionUnit ru = rus.get(i);
 			String name = RevisionPurpose.getPurposeName(ru.getRevision_purpose());
 			table.get(name).reload(ru.getRevision_op());
+		}
+	}
+	
+	public void reload(SubsententialRevisionUnit sru) {
+		Iterator<String> it = table.keySet().iterator();
+		while(it.hasNext()) {
+			table.get(it.next()).reload(-1);
+		}
+		
+		if (sru != null)
+		{
+			String name = RevisionPurpose.getPurposeName(sru.RevisionPurpose());
+			table.get(name).reload(sru.RevisionOperation());
 		}
 	}
 	

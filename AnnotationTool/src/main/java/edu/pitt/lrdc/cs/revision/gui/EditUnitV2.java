@@ -1,6 +1,8 @@
 package edu.pitt.lrdc.cs.revision.gui;
 
 import java.awt.Color;
+import java.awt.Font;
+
 import javax.swing.*;
 
 public class EditUnitV2 extends JPanel {
@@ -51,8 +53,10 @@ public class EditUnitV2 extends JPanel {
 	public void reload(int revisionOp) {
 		if(revisionOp == -1) {
 			this.checkBox.setSelected(false);
+			this.name.setFont(this.checkBox.getFont().deriveFont(Font.PLAIN));
 		} else {
 			this.checkBox.setSelected(true);
+			this.name.setFont(this.checkBox.getFont().deriveFont(Font.BOLD));
 		}
 	}
 }
