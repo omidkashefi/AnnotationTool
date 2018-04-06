@@ -2,6 +2,7 @@ package edu.pitt.lrdc.cs.revision.gui;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
@@ -10,12 +11,17 @@ import javax.swing.text.Utilities;
 import org.apache.poi.poifs.property.Parent;
 
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
+import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
+import edu.pitt.lrdc.cs.revision.model.Span;
+import edu.pitt.lrdc.cs.revision.model.SubsententialRevisionUnit;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,16 +34,31 @@ import name.fraser.neil.plaintext.diff_match_patch.Operation;
 public class ContentBox extends Box {
 	JTextArea newSentence;
 	JTextArea oldSentence;
-	Map<Integer, Integer> newStrToHighlight;
-	Map<Integer, Integer> oldStrToHighlight;
+	JTextArea pairSentence1;
+	JTextArea pairSentence2;
+	JScrollPane pairSentence1SB;
+	JScrollPane pairSentence2SB;
+	Box sentenceBox;
 	Map<Integer, Integer> matchingToHighlight;
 	Map<Integer, Integer> matchingToHighlightReverse;
+	
+	Boolean pairPanelClicked;
 
 	private ArrayList<SubsententialRevisionUnit> subsententialUnits;
 	SubsententialRevisionUnit currentUnit = null;
+	int sentenceLevelRevisionPurpose;
 	
 	private AdvBaseLevelPanelV4 parentPanel;
 
+	// Javadoc comment follows
+    /**
+     * @deprecated
+     * Now with subsentential annotation most of the work is done in this class
+     * so we need to have access to other classes from parent
+     * I kept this for backward compatibility and keep the code and older interfaces still working
+     * Omid Kashefi
+     */
+    @Deprecated
 	public ContentBox(int axis) {
 		super(axis);
 
@@ -51,9 +72,6 @@ public class ContentBox extends Box {
 		newSentence.setLineWrap(true);
 		newSentence.setEditable(false);
 		oldSentence.setEditable(false);
-
-		newStrToHighlight = new HashMap<Integer, Integer>();
-		oldStrToHighlight = new HashMap<Integer, Integer>();
 
 		matchingToHighlight = new HashMap<Integer, Integer>();
 		matchingToHighlightReverse = new HashMap<Integer, Integer>();
@@ -155,23 +173,25 @@ public class ContentBox extends Box {
 	
 	public ContentBox(int axis, AdvBaseLevelPanelV4 parent) {
 		super(axis);
-
+		
+		this.pairPanelClicked = false;
+		sentenceLevelRevisionPurpose = -1;
+		
 		this.parentPanel = parent;
 		
 		subsententialUnits = new ArrayList<SubsententialRevisionUnit>();
 		
 		newSentence = new JTextArea("Sentence from NEW version:\n");
 		oldSentence = new JTextArea("Sentence from the OLD version:\n");
+
 		newSentence.setRows(3);
 		oldSentence.setRows(3);
 		oldSentence.setLineWrap(true);
 		newSentence.setLineWrap(true);
 		newSentence.setEditable(false);
 		oldSentence.setEditable(false);
-
-		newStrToHighlight = new HashMap<Integer, Integer>();
-		oldStrToHighlight = new HashMap<Integer, Integer>();
-
+		
+	
 		matchingToHighlight = new HashMap<Integer, Integer>();
 		matchingToHighlightReverse = new HashMap<Integer, Integer>();
 
@@ -180,6 +200,11 @@ public class ContentBox extends Box {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				
+				oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
+				newSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				pairSentence2.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
 
 				//store previous selection's annotation
 				storeSubSententialAnnotation();
@@ -218,7 +243,7 @@ public class ContentBox extends Box {
 					
 					//check if highlighted area is already annotated
 					for (SubsententialRevisionUnit sru : subsententialUnits) {
-						if (sru.oldDraft.contatins(h.getStartOffset())) {
+						if (sru.oldDraft().contatins(h.getStartOffset())) {
 							//matching area is already annotated
 							matchingSSR = sru;
 							//use corresponding color
@@ -273,7 +298,7 @@ public class ContentBox extends Box {
 					//if any of subsentential revisions already annotated
 					for (SubsententialRevisionUnit sru : subsententialUnits) {
 						//use corresponding color
-						if (sru.newDraft.contatins(h.getStartOffset())) {
+						if (sru.newDraft().contatins(h.getStartOffset())) {
 							revisionColor = ColorConstants.getColor(sru.RevisionPurpose());
 						}
 					}
@@ -323,6 +348,11 @@ public class ContentBox extends Box {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				
+				oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				newSentence.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
+				pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				pairSentence2.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+
 				//store previous selection's annotation
 				storeSubSententialAnnotation();
 				
@@ -360,7 +390,7 @@ public class ContentBox extends Box {
 					
 					//check if highlighted area is already annotated
 					for (SubsententialRevisionUnit sru : subsententialUnits) {
-						if (sru.newDraft.contatins(h.getStartOffset())) {
+						if (sru.newDraft().contatins(h.getStartOffset())) {
 							//matching area is already annotated
 							matchingSSR = sru;
 							//use corresponding color
@@ -415,7 +445,7 @@ public class ContentBox extends Box {
 					//if any of subsentential revisions already annotated
 					for (SubsententialRevisionUnit sru : subsententialUnits) {
 						//use corresponding color
-						if (sru.oldDraft.contatins(h.getStartOffset())) {
+						if (sru.oldDraft().contatins(h.getStartOffset())) {
 							revisionColor = ColorConstants.getColor(sru.RevisionPurpose());
 						}
 					}
@@ -462,9 +492,98 @@ public class ContentBox extends Box {
 		JScrollPane newPane = new JScrollPane(newSentence);
 		JScrollPane oldPane = new JScrollPane(oldSentence);
 
+		pairSentence1 = new JTextArea();
+		pairSentence2 = new JTextArea();
+		pairSentence1.setRows(1);
+		pairSentence2.setRows(1);
+		pairSentence1.setEditable(false);
+		pairSentence2.setEditable(false);
+		pairSentence1SB = new JScrollPane(pairSentence1, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		pairSentence2SB = new JScrollPane(pairSentence2);
+		Box sentenceBox = new Box(BoxLayout.X_AXIS);
+		sentenceBox.add(pairSentence1SB);
+		sentenceBox.add(pairSentence2SB);
+		
+
 		add(oldPane);
 		add(newPane);
+		add(sentenceBox);
 		
+		//annotate sentence level
+		pairSentence1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				pairPanelClicked = true;
+				if (sentenceLevelRevisionPurpose != -1) {
+					pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+					pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+					pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
+					pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.BOLD));
+					
+					oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+					newSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+
+					parentPanel.annotateBox.reload(sentenceLevelRevisionPurpose);
+
+				}
+			}
+			
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//if trying to annotate sentence level
+				if (pairPanelClicked) { 
+					pairPanelClicked = false;
+					//get annotation selection
+					ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
+					if (!sul.isEmpty()) {
+						sentenceLevelRevisionPurpose = sul.get(0).revision_purpose;
+						pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+						pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+						pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+						pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.PLAIN));
+						return;
+					}
+				}
+			}
+
+		});
+		pairSentence2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				pairPanelClicked = true;
+				if (sentenceLevelRevisionPurpose != -1) {
+					pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+					pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+					pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
+					pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.BOLD));
+
+					oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+					newSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+
+					parentPanel.annotateBox.reload(sentenceLevelRevisionPurpose);
+				}
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//if trying to annotate sentence level
+				if (pairPanelClicked) { 
+					pairPanelClicked = false;
+					//get annotation selection
+					ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
+					if (!sul.isEmpty()) {
+						sentenceLevelRevisionPurpose = sul.get(0).revision_purpose;
+						pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+						pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+						pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+						pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.PLAIN));
+						return;
+					}
+				}
+			}
+		});
 	}
 	
 	private void storeSubSententialAnnotation() {
@@ -479,7 +598,7 @@ public class ContentBox extends Box {
 
 		//if current selection is already annotated
 		for (SubsententialRevisionUnit sru : subsententialUnits) {
-			if (sru.oldDraft.contatins(currentUnit.oldDraft.start)) {
+			if (sru.oldDraft().contatins(currentUnit.oldDraft().start())) {
 				//remove it
 				subsententialUnits.remove(sru);
 				break;
@@ -490,13 +609,10 @@ public class ContentBox extends Box {
 		subsententialUnits.add(currentUnit);
 
 	}
-
-	public void setSentneces(String oldSent, String newSent) {
-
-		this.newStrToHighlight.clear();
-		this.oldStrToHighlight.clear();
-		this.matchingToHighlight.clear();
-		this.matchingToHighlightReverse.clear();
+	
+	private void findDiffnHighlight(String oldSent, String newSent) {
+		Map<Integer, Integer> newStrToHighlight = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> oldStrToHighlight = new HashMap<Integer, Integer>();
 		
 		diff_match_patch dmp = new diff_match_patch();
 
@@ -509,6 +625,7 @@ public class ContentBox extends Box {
 		Boolean match = false;
 		Integer lastIndex = 0;
 
+		//find the diff
 		for (diff_match_patch.Diff d : diff) {
 			if (d.operation == Operation.EQUAL) {
 				newStr += d.text;
@@ -523,7 +640,7 @@ public class ContentBox extends Box {
 				match = !match;
 				lastIndex = oldStr.length();
 				
-				this.oldStrToHighlight.put(lastIndex, d.text.length() - 1);
+				oldStrToHighlight.put(lastIndex, d.text.length() - 1);
 				oldStr += d.text;
 
 			} else if (d.operation == Operation.INSERT) {
@@ -535,7 +652,7 @@ public class ContentBox extends Box {
 				match = !match;
 				lastIndex = newStr.length();
 
-				this.newStrToHighlight.put(lastIndex, d.text.length() - 1);
+				newStrToHighlight.put(lastIndex, d.text.length() - 1);
 				newStr += d.text;
 			}
 
@@ -544,7 +661,7 @@ public class ContentBox extends Box {
 		this.oldSentence.setText(oldStr);
 		Highlighter oldHighlighter = this.oldSentence.getHighlighter();
 		HighlightPainter oldPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.gray);
-		for (Map.Entry<Integer, Integer> ent : this.oldStrToHighlight.entrySet()) {
+		for (Map.Entry<Integer, Integer> ent : oldStrToHighlight.entrySet()) {
 			try {
 				oldHighlighter.addHighlight(ent.getKey(), ent.getKey() + ent.getValue(), oldPainter);
 			} catch (BadLocationException e) {
@@ -555,21 +672,105 @@ public class ContentBox extends Box {
 		this.newSentence.setText(newStr);
 		Highlighter newHighlighter = this.newSentence.getHighlighter();
 		HighlightPainter newPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.gray);
-		for (Map.Entry<Integer, Integer> ent : this.newStrToHighlight.entrySet()) {
+		for (Map.Entry<Integer, Integer> ent : newStrToHighlight.entrySet()) {
 			try {
 				newHighlighter.addHighlight(ent.getKey(), ent.getKey() + ent.getValue(), newPainter);
 			} catch (BadLocationException e) {
 				// TODO: handle exception
 			}
 		}
+	}
+	
+
+	// Javadoc comment follows
+    /**
+     * @deprecated
+     * I kept this for backward compatibility and keep the code and older interfaces still working
+     * I need subsentential revisions to show proper annotations
+     * Omid Kashefi
+     */
+	public void setSentneces(String oldSent, String newSent) {
+
+		this.matchingToHighlight.clear();
+		this.matchingToHighlightReverse.clear();
+
+		findDiffnHighlight(oldSent, newSent);
+	}
+
+	public void setSentneces(String oldSent, String newSent, RevisionUnit ru) {
+	
+		this.matchingToHighlight.clear();
+		this.matchingToHighlightReverse.clear();
+
+		this.pairSentence1.setText(oldSent);
+		this.pairSentence2.setText(newSent);
+
+		if (ru.getSubsententialUnits().isEmpty()) {
+			//find subsentential revisions automatically and highlight accordingly
+			findDiffnHighlight(oldSent, newSent);
+		}
+		else {
+			//highlight based on annotation
+			
+			this.oldSentence.setText(oldSent);
+			Highlighter oldHighlighter = this.oldSentence.getHighlighter();
+
+			this.newSentence.setText(newSent);
+			Highlighter newHighlighter = this.newSentence.getHighlighter();
+
+			for (SubsententialRevisionUnit sru : ru.getSubsententialUnits()) {
+
+				//keep track of old-new matching pairs
+				this.matchingToHighlight.put(sru.oldDraft().start(), sru.newDraft().start());
+				this.matchingToHighlightReverse.put(sru.newDraft().start(), sru.oldDraft().start());
+
+				//get revision color
+				HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(ColorConstants.getColor(sru.RevisionPurpose()));
+
+				try {
+					//highlight oldDraft
+					oldHighlighter.addHighlight(sru.oldDraft().start(), sru.oldDraft().end(), painter);
+					
+					//highlight oldDraft
+					newHighlighter.addHighlight(sru.newDraft().start(), sru.oldDraft().end(), painter);
+				} catch (BadLocationException e) {
+					// TODO: handle exception
+				}
+			}
+			
+		
+		}
+		
+		if (ru.getRevision_purpose() != -1) {
+			pairSentence1.setBackground(ColorConstants.getColor(ru.getRevision_purpose()));
+			pairSentence2.setBackground(ColorConstants.getColor(ru.getRevision_purpose()));
+			sentenceLevelRevisionPurpose = ru.getRevision_purpose();
+		}
+		else {
+			pairSentence1.setBackground(Color.white);
+			pairSentence2.setBackground(Color.white);
+			sentenceLevelRevisionPurpose = -1;
+		}
+			
+
+		
+		pairSentence1SB.setMaximumSize(new Dimension(newSentence.getWidth()/2, newSentence.getMinimumSize().height*2));
+		pairSentence2SB.setMaximumSize(new Dimension(newSentence.getWidth()/2, newSentence.getMinimumSize().height*2));
+		pairSentence1SB.setMinimumSize(new Dimension(newSentence.getWidth()/2, newSentence.getMinimumSize().height*2));
+		pairSentence2SB.setMinimumSize(new Dimension(newSentence.getWidth()/2, newSentence.getMinimumSize().height*2));
+		//oldSentence.setCaretPosition(0);
+		//pane2.getHorizontalScrollBar().setValue(10);
+
 
 	}
 
-	/*
-	 * public void setNewSentence(String sent) {
-	 * this.newSentence.setText("Sentence from NEW version:\n"+sent); }
-	 * 
-	 * public void setOldSentence(String sent) {
-	 * this.oldSentence.setText("Sentence from the OLD version:\n"+sent); }
-	 */
+	public RevisionUnit getAnnotations() {
+		RevisionUnit ru = new RevisionUnit(parentPanel.doc.getRoot());
+		
+		ru.setSubsententialUnits(this.subsententialUnits);
+		
+		ru.setRevision_purpose(1);
+
+		return ru;
+	}
 }
