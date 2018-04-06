@@ -1,4 +1,4 @@
-package edu.pitt.lrdc.cs.revision.gui;
+package edu.pitt.lrdc.cs.revision.model;
 
 public class SubsententialRevisionUnit {
 	Span oldDraft;
