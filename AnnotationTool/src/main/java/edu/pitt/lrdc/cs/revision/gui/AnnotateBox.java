@@ -16,8 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
+import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
+import edu.pitt.lrdc.cs.revision.model.SubsententialRevisionUnit;
 
 public class AnnotateBox extends JPanel{
 	private JLabel statusDisplay = new JLabel("--------------------------------");
@@ -161,7 +164,20 @@ public class AnnotateBox extends JPanel{
 			table.get(name).reload(sru.RevisionOperation());
 		}
 	}
-	
+
+	public void reload(int rp) {
+		Iterator<String> it = table.keySet().iterator();
+		while(it.hasNext()) {
+			table.get(it.next()).reload(-1);
+		}
+		
+		if (rp != -1l)
+		{
+			String name = RevisionPurpose.getPurposeName(rp);
+			table.get(name).reload(RevisionOp.ADD);
+		}
+	}
+
 	public ArrayList<SelectionUnit> getSelectedUnits() {
 		ArrayList<SelectionUnit> sus = new ArrayList<SelectionUnit>();
 		

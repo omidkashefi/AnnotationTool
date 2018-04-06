@@ -546,7 +546,8 @@ public class ColoredListWrapperV2 {
 
 				//parentPanel.annotateContentDetail.setOldSentence(oldSentence);
 				//parentPanel.annotateContentDetail.setNewSentence(newSentence);
-				parentPanel.annotateContentDetail.setSentneces(oldSentence, newSentence); 
+				
+				parentPanel.annotateContentDetail.setSentneces(oldSentence, newSentence, parentPanel.currentRU.get(0)); 
 				if (oldSentence.trim().equals(newSentence.trim())) {
 					parentPanel.annotateBox.setEnabled(false);
 					parentPanel.annotateBox

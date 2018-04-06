@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Stack;
 
-import edu.pitt.lrdc.cs.revision.gui.SubsententialRevisionUnit;
-
 /**
  * The unit of a revision, a nested data structure
  * 
@@ -273,6 +271,10 @@ public class RevisionUnit {
 	
 	public ArrayList<SubsententialRevisionUnit> getSubsententialUnits() {
 		return this.subsententialUnits;
+	}
+
+	public void setSubsententialUnits(ArrayList<SubsententialRevisionUnit> ssu) {
+		this.subsententialUnits = ssu;
 	}
 
 	public void clearSubsententialUnits() {
