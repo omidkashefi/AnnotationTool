@@ -274,7 +274,8 @@ public class RevisionUnit {
 	}
 
 	public void setSubsententialUnits(ArrayList<SubsententialRevisionUnit> ssu) {
-		this.subsententialUnits = ssu;
+		this.clearSubsententialUnits();
+		this.subsententialUnits.addAll(ssu);
 	}
 
 	public void clearSubsententialUnits() {

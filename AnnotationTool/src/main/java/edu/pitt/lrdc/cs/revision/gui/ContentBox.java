@@ -207,7 +207,7 @@ public class ContentBox extends Box {
 				pairSentence2.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
 
 				//store previous selection's annotation
-				storeSubSententialAnnotation();
+				registerSubSententialAnnotation();
 				
 				//Default selection color
 				Color selectColor = Color.darkGray;
@@ -354,7 +354,7 @@ public class ContentBox extends Box {
 				pairSentence2.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
 
 				//store previous selection's annotation
-				storeSubSententialAnnotation();
+				registerSubSententialAnnotation();
 				
 				//Default selection color
 				Color selectColor = Color.darkGray;
@@ -586,7 +586,7 @@ public class ContentBox extends Box {
 		});
 	}
 	
-	private void storeSubSententialAnnotation() {
+	private void registerSubSententialAnnotation() {
 		
 		//get annotation selection
 		ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
@@ -701,7 +701,14 @@ public class ContentBox extends Box {
 	
 		this.matchingToHighlight.clear();
 		this.matchingToHighlightReverse.clear();
+		this.subsententialUnits.clear();
+		this.subsententialUnits.addAll(ru.getSubsententialUnits());
+		this.currentUnit = null;
+		this.sentenceLevelRevisionPurpose = ru.getRevision_purpose();
 
+		
+		this.pairPanelClicked = false;
+		
 		this.pairSentence1.setText(oldSent);
 		this.pairSentence2.setText(newSent);
 
@@ -769,7 +776,7 @@ public class ContentBox extends Box {
 		
 		ru.setSubsententialUnits(this.subsententialUnits);
 		
-		ru.setRevision_purpose(1);
+		ru.setRevision_purpose(this.sentenceLevelRevisionPurpose);
 
 		return ru;
 	}

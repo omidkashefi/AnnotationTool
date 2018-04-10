@@ -53,7 +53,7 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 	// ArrayList<Integer> currentNewSentenceIndex;
 	@Override
 	public void registerRevision() {
-		ArrayList<SelectionUnit> sus = annotateBox.getSelectedUnits();
+		//ArrayList<SelectionUnit> sus = annotateBox.getSelectedUnits();
 		if (currentRU == null || currentRU.size() == 0) {
 			// do nothing
 			System.err.println("Do nothing");
@@ -67,14 +67,15 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 			// the new units will be registered and the old units will be
 			// removed
 
+			RevisionUnit annotatedRU = annotateContentDetail.getAnnotations();
+
 			// First remove the unexisting old
 			for (RevisionUnit ru : currentRU) {
 				boolean isExist = false;
-				for (SelectionUnit su : sus) {
-					if (su.revision_purpose == ru.getRevision_purpose()) {
-						isExist = true;
-						break;
-					}
+				if (annotatedRU.getRevision_purpose() == ru.getRevision_purpose() &&
+					annotatedRU.getSubsententialUnits().equals(ru.getSubsententialUnits())) {
+					isExist = true;
+					break;
 				}
 				if (!isExist) {
 					ru.setAbandoned();
@@ -82,53 +83,54 @@ public class AdvBaseLevelPanelV4 extends JPanel implements LevelPanel {
 			}
 
 			// Now add the new stuff
-			for (SelectionUnit su : sus) {
-				boolean isExist = false;
-				for (RevisionUnit ru : currentRU) {
-					if (su.revision_purpose == ru.getRevision_purpose()) {
-						isExist = true;
-						break;
-					}
-				}
-				if (!isExist) {
-					RevisionUnit newUnit = new RevisionUnit(doc.getRoot());
-					newUnit.setOldSentenceIndex(oldSentenceIndex);
-					newUnit.setRevision_op(RevisionOp.MODIFY);
-					if (oldSentenceIndex != null
-							&& oldSentenceIndex.size() != 0) {
-						String oldSentence = "";
-						for (Integer oldIndex : oldSentenceIndex) {
-							if (oldIndex != -1)
-								oldSentence += doc.getOldSentence(oldIndex)
-										+ "\n";
-						}
-						newUnit.setOldSentence(oldSentence);
-					} else {
-						newUnit.setRevision_op(RevisionOp.ADD);
-					}
-					newUnit.setNewSentenceIndex(newSentenceIndex);
-					if (newSentenceIndex != null
-							&& newSentenceIndex.size() != 0) {
-						String newSentence = "";
-						for (Integer newIndex : newSentenceIndex) {
-							if (newIndex != -1)
-								newSentence += doc.getNewSentence(newIndex)
-										+ "\n";
-						}
-						newUnit.setNewSentence(newSentence);
-					} else {
-						newUnit.setRevision_op(RevisionOp.DELETE);
-					}
-					// newUnit.setRevision_op(su.revision_op);
-					newUnit.setRevision_purpose(su.revision_purpose);
-
-					newUnit.setRevision_level(0);
-					newUnit.setRevision_index(doc.getRoot()
-							.getNextIndexAtLevel(0));
-					doc.getRoot().addUnit(newUnit);
-					wrapper.changePurpose(newUnit);
+			boolean isExist = false;
+			for (RevisionUnit ru : currentRU) {
+				if (annotatedRU.getRevision_purpose() == ru.getRevision_purpose() &&
+					annotatedRU.getSubsententialUnits().equals(ru.getSubsententialUnits())) {
+					isExist = true;
+					break;
 				}
 			}
+			if (!isExist) {
+				RevisionUnit newUnit = new RevisionUnit(doc.getRoot());
+				newUnit.setOldSentenceIndex(oldSentenceIndex);
+				newUnit.setRevision_op(RevisionOp.MODIFY);
+				if (oldSentenceIndex != null
+						&& oldSentenceIndex.size() != 0) {
+					String oldSentence = "";
+					for (Integer oldIndex : oldSentenceIndex) {
+						if (oldIndex != -1)
+							oldSentence += doc.getOldSentence(oldIndex)
+									+ "\n";
+					}
+					newUnit.setOldSentence(oldSentence);
+				} else {
+					newUnit.setRevision_op(RevisionOp.ADD);
+				}
+				newUnit.setNewSentenceIndex(newSentenceIndex);
+				if (newSentenceIndex != null
+						&& newSentenceIndex.size() != 0) {
+					String newSentence = "";
+					for (Integer newIndex : newSentenceIndex) {
+						if (newIndex != -1)
+							newSentence += doc.getNewSentence(newIndex)
+									+ "\n";
+					}
+					newUnit.setNewSentence(newSentence);
+				} else {
+					newUnit.setRevision_op(RevisionOp.DELETE);
+				}
+				// newUnit.setRevision_op(su.revision_op);
+				newUnit.setRevision_purpose(annotatedRU.getRevision_purpose());
+				//add subsentential units
+				newUnit.setSubsententialUnits(annotatedRU.getSubsententialUnits());
+
+				newUnit.setRevision_level(0);
+				newUnit.setRevision_index(doc.getRoot().getNextIndexAtLevel(0));
+				doc.getRoot().addUnit(newUnit);
+				wrapper.changePurpose(newUnit);
+			}
+
 		}
 		doc.check();
 		doc.getRoot().clear();
