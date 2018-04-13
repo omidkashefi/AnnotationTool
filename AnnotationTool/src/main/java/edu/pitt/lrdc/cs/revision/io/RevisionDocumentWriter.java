@@ -202,8 +202,9 @@ public class RevisionDocumentWriter {
 					revPurposeStr += RevisionPurpose
 							.getPurposeName(revPurposeIndex.get(index)) + ",";
 					for(SubsententialRevisionUnit s : subSntIndex.get(index)) {
-						if (s.oldDraft().start() == -1 || s.oldDraft().end() == -1) 
+						/*if (s.oldDraft().start() == -1 || s.oldDraft().end() == -1) 
 							continue;
+							*/
 						subSntStr += "[(" + s.oldDraft().start() + "," + s.oldDraft().end() +"), (" + s.newDraft().start() + "," + s.newDraft().end() + "), " + s.RevisionPurpose() + ", " + s.RevisionOperation() +"],";
 					}
 				}
@@ -245,9 +246,11 @@ public class RevisionDocumentWriter {
 					revPurposeStr += RevisionPurpose
 							.getPurposeName(revPurposeIndex.get(index)) + ",";
 					for(SubsententialRevisionUnit s : subSntIndex.get(index)) {
-						if (s.newDraft().start() == -1 || s.newDraft().end() == -1) 
+						/*if (s.newDraft().start() == -1 || s.newDraft().end() == -1) 
 							continue;
 						subSntStr += "[(" + s.newDraft().start() + "," + s.newDraft().end() +"), (" + s.oldDraft().start() + "," + s.oldDraft().end() + "), " + s.RevisionPurpose() + ", " + s.RevisionOperation() +"],";
+						*/
+						subSntStr += "[(" + s.oldDraft().start() + "," + s.oldDraft().end() +"), (" + s.newDraft().start() + "," + s.newDraft().end() + "), " + s.RevisionPurpose() + ", " + s.RevisionOperation() +"],";
 					}
 
 				}

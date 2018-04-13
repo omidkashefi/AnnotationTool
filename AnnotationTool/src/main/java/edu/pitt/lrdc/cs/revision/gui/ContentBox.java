@@ -529,9 +529,10 @@ public class ContentBox extends Box {
 				}
 			}
 			
-			
 			@Override
 			public void mouseEntered(MouseEvent e) {
+				//register subsentnetial unit first
+				registerSubSententialAnnotation();
 				//if trying to annotate sentence level
 				if (pairPanelClicked) { 
 					pairPanelClicked = false;
@@ -547,7 +548,6 @@ public class ContentBox extends Box {
 					}
 				}
 			}
-
 		});
 		pairSentence2.addMouseListener(new MouseAdapter() {
 			@Override
@@ -568,6 +568,8 @@ public class ContentBox extends Box {
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
+				//register subsentnetial unit first
+				registerSubSententialAnnotation();
 				//if trying to annotate sentence level
 				if (pairPanelClicked) { 
 					pairPanelClicked = false;
@@ -590,15 +592,15 @@ public class ContentBox extends Box {
 		
 		//get annotation selection
 		ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
-		if (currentUnit == null || sul.isEmpty())
+		if (this.currentUnit == null || sul.isEmpty())
 			return;
 		
 		//annotate current selection
-		currentUnit.setRevisionPurpose(sul.get(0).revision_purpose);
+		this.currentUnit.setRevisionPurpose(sul.get(0).revision_purpose);
 
 		//if current selection is already annotated
 		for (SubsententialRevisionUnit sru : subsententialUnits) {
-			if (sru.oldDraft().contatins(currentUnit.oldDraft().start())) {
+			if (sru.oldDraft().contatins(this.currentUnit.oldDraft().start())) {
 				//remove it
 				subsententialUnits.remove(sru);
 				break;
@@ -606,7 +608,10 @@ public class ContentBox extends Box {
 		}
 
 		//add current selection to the array
-		subsententialUnits.add(currentUnit);
+		subsententialUnits.add(this.currentUnit);
+		
+		//make it unselected
+		this.currentUnit = null;
 
 	}
 	
@@ -728,18 +733,22 @@ public class ContentBox extends Box {
 			for (SubsententialRevisionUnit sru : ru.getSubsententialUnits()) {
 
 				//keep track of old-new matching pairs
-				this.matchingToHighlight.put(sru.oldDraft().start(), sru.newDraft().start());
-				this.matchingToHighlightReverse.put(sru.newDraft().start(), sru.oldDraft().start());
+				if (sru.oldDraft().start() != -1 && sru.newDraft().start() != -1) {
+					this.matchingToHighlight.put(sru.oldDraft().start(), sru.newDraft().start());
+					this.matchingToHighlightReverse.put(sru.newDraft().start(), sru.oldDraft().start());
+				}
 
 				//get revision color
 				HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(ColorConstants.getColor(sru.RevisionPurpose()));
 
 				try {
 					//highlight oldDraft
-					oldHighlighter.addHighlight(sru.oldDraft().start(), sru.oldDraft().end(), painter);
+					if (sru.oldDraft().start() != -1)
+						oldHighlighter.addHighlight(sru.oldDraft().start(), sru.oldDraft().end(), painter);
 					
 					//highlight oldDraft
-					newHighlighter.addHighlight(sru.newDraft().start(), sru.oldDraft().end(), painter);
+					if (sru.newDraft().start() != -1)
+						newHighlighter.addHighlight(sru.newDraft().start(), sru.newDraft().end(), painter);
 				} catch (BadLocationException e) {
 					// TODO: handle exception
 				}
