@@ -17,12 +17,16 @@ import edu.pitt.lrdc.cs.revision.model.RevisionDocument;
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
 import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
+import edu.pitt.lrdc.cs.revision.model.Span;
+import edu.pitt.lrdc.cs.revision.model.SubsententialRevisionUnit;
 
 /**
  * Reads from the file to generate the revision document
  * 
  * @author zhangfan
  * @version 1.0
+ * @author Omid
+ * @version 2.0
  */
 public class RevisionDocumentReader {
 	private static boolean printVerbose = false;
@@ -48,115 +52,6 @@ public class RevisionDocumentReader {
 		return nextLevel;
 	}
 
-	// Comment: changed the code, now first creates redundant unit row by row,
-	// next merge unit column by column
-/*
-	public static void addRowOfRevisions(XSSFRow row, int startIndex,
-			int levels, ArrayList<RevisionUnit> allRevisions,
-			RevisionUnit root, boolean isOld) {
-		int currentLevel = 0;
-		while (currentLevel < levels) {
-			// System.out.println(startIndex);
-			XSSFCell purposeCell = row.getCell(startIndex + currentLevel * 3);
-			XSSFCell operationCell = row.getCell(startIndex + currentLevel * 3
-					+ 1);
-			XSSFCell indexCell = row.getCell(startIndex + currentLevel * 3 + 2);
-
-			if (indexCell != null && !indexCell.toString().trim().equals("")) {
-				String indexValStr = indexCell.toString();
-				// System.out.println(indexValStr);
-				// System.out.println(indexValStr.length());
-				String[] indexes = indexValStr.split(",");
-				for (int k = 0; k < indexes.length; k++) {
-					RevisionUnit ru = new RevisionUnit(root);
-					ru.setRevision_index((int) Double.parseDouble(indexes[k])); // set
-																				// the
-																				// revision
-																				// index
-					if (purposeCell != null
-							&& !purposeCell.toString().trim().equals("")) { // set
-																			// the
-																			// purpose
-						String purposeVal = purposeCell.getStringCellValue();
-						String[] purposes = purposeVal.split(",");
-						ru.setRevision_purpose(RevisionPurpose
-								.getPurposeIndex(purposes[k]));
-					}
-					if (operationCell != null
-							&& !operationCell.toString().trim().equals("")) { // set
-																				// the
-																				// op
-						String operationVal = operationCell
-								.getStringCellValue();
-						String[] operations = operationVal.split(",");
-						ru.setRevision_op(RevisionOp.getOpIndex(operations[k]));
-					}
-					if (currentLevel == 0) { // First level have the sentence
-												// indexes
-						// Set up the sentence indexes
-						if (ru.getRevision_op() == RevisionOp.DELETE && isOld) {
-							// Get in sheet 0
-							int oldSentenceIndex = (int) row.getCell(0)
-									.getNumericCellValue();
-							ArrayList<Integer> olds = new ArrayList<Integer>();
-							olds.add(oldSentenceIndex);
-							ru.setOldSentenceIndex(olds);
-							// ru.setNewSentenceIndex(-1);
-						} else if (!isOld) {
-							int newSentenceIndex = (int) row.getCell(0)
-									.getNumericCellValue();
-							ArrayList<Integer> newSentenceIndexes = new ArrayList<Integer>();
-							newSentenceIndexes.add(newSentenceIndex);
-							String oldSent = row.getCell(2).toString();
-							ArrayList<Integer> oldSentenceIndex = new ArrayList<Integer>();
-							String[] olds = oldSent.split(",");
-							for (int i = 0; i < olds.length; i++) {
-								try {
-									oldSentenceIndex.add((int) Double
-											.parseDouble(olds[i]));
-								} catch (Exception exp) {
-									// do nothing
-								}
-							}
-							ru.setOldSentenceIndex(oldSentenceIndex);
-							ru.setNewSentenceIndex(newSentenceIndexes);
-						} else {
-							// Old but not delete, has already been logged
-						}
-					}
-
-					// build the revision unit
-					ru.setRevision_level(currentLevel);
-					int nextLevel = findNextLevel(row, startIndex
-							+ currentLevel * 3, currentLevel, levels);
-					if (nextLevel < levels) {
-						XSSFCell nextIndex = row.getCell(startIndex + nextLevel
-								* 3 + 2);
-						String indexVal = nextIndex.toString();
-						try {
-							int groupIndex = (int) Double.parseDouble(indexVal);
-							ru.setParent_index(groupIndex);
-						} catch (Exception exp) {
-							String[] parentIndexes = indexVal.split(",");
-							if (printVerbose)
-								System.out.println(indexVal);
-							ru.setParent_index(Integer
-									.parseInt(parentIndexes[k]));
-						}
-					}
-
-					ru.setParent_level(nextLevel);
-					allRevisions.add(ru);
-					currentLevel = nextLevel; // Scan the next revision unit
-												// in this row
-				}
-			} else {
-				currentLevel = levels;
-			}
-
-		}
-	}*/
-
 	/**
 	 * There are bugs in the old addRowofRevisions when dealing levels, temporary solution here for only 1 level
 	 * 
@@ -174,10 +69,10 @@ public class RevisionDocumentReader {
 			RevisionUnit root, boolean isOld) {
 		int currentLevel = 0;
 		
-			XSSFCell purposeCell = row.getCell(startIndex + currentLevel * 3);
-			XSSFCell operationCell = row.getCell(startIndex + currentLevel * 3
-					+ 1);
-			XSSFCell indexCell = row.getCell(startIndex + currentLevel * 3 + 2);
+			XSSFCell purposeCell = row.getCell(startIndex + currentLevel * 4);
+			XSSFCell operationCell = row.getCell(startIndex + currentLevel * 4 + 1);
+			XSSFCell indexCell = row.getCell(startIndex + currentLevel * 4 + 2);
+			XSSFCell subSntCell = row.getCell(startIndex + currentLevel * 4 + 3);
 
 			if (indexCell != null && !indexCell.toString().trim().equals("")) {
 				String indexValStr = indexCell.toString();
@@ -209,6 +104,31 @@ public class RevisionDocumentReader {
 						ru.setRevision_op(RevisionOp.getOpIndex(operations[k]));
 					}
 					
+					if (subSntCell != null
+							&& !subSntCell.toString().trim().equals("")) { // set
+																				// the
+																				// subsnt
+						String subSntVal = subSntCell
+								.getStringCellValue();
+						ArrayList<SubsententialRevisionUnit> ssr = new ArrayList<SubsententialRevisionUnit>();
+						for (String tuple : subSntVal.split("],")) {
+						    String oldSS = tuple.replace("[", "").replace("]", "").trim().split(", ")[0];
+						    String newSS = tuple.replace("[", "").replace("]", "").trim().split(", ")[1];
+						    String rpSS = tuple.replace("[", "").replace("]", "").split(", ")[2];
+						    String roSS = tuple.replace("[", "").replace("]", "").split(", ")[3];
+						    int oldStart = Integer.parseInt(oldSS.replace("(", "").replace(")", "").trim().split(",")[0]);
+						    int oldEnd = Integer.parseInt(oldSS.replace("(", "").replace(")", "").trim().split(",")[1]);
+						    int newStart = Integer.parseInt(newSS.replace("(", "").replace(")", "").trim().split(",")[0]);
+						    int newEnd = Integer.parseInt(newSS.replace("(", "").replace(")", "").trim().split(",")[1]);
+						    int revpSS = Integer.parseInt(rpSS);
+						    int revoSS = Integer.parseInt(roSS);
+						    Span oldSpan = new Span(oldStart, oldEnd);
+						    Span newSpan = new Span(newStart, newEnd);
+						    SubsententialRevisionUnit ssru = new SubsententialRevisionUnit(oldSpan, newSpan, revpSS, revoSS);
+						    ssr.add(ssru);
+						}
+						ru.setSubsententialUnits(ssr);
+					}
 					if (currentLevel == 0) { // First level have the sentence
 												// indexes
 						// Set up the sentence indexes
@@ -258,7 +178,7 @@ public class RevisionDocumentReader {
 					// build the revision unit
 					ru.setRevision_level(currentLevel);
 					int nextLevel = findNextLevel(row, startIndex
-							+ currentLevel * 3, currentLevel, levels);
+							+ currentLevel * 4, currentLevel, levels);
 					ru.setParent_index(-1);
 					ru.setParent_level(3);//Temporary for current settings
 
@@ -341,8 +261,20 @@ public class RevisionDocumentReader {
 					|| cellName.trim().equals("Revision Purpose Level 0"))
 				r1Index = i;
 		}
+		//old version: 3
+		//new version with subsententtail revisions: 4
+		int levelVersion = r1Index + 2;
+		for (int i = r1Index; i < header1.getPhysicalNumberOfCells(); i++) {
+			String cellName = header1.getCell(i).getStringCellValue();
+			if (cellName.trim().equals("Subsentential Revision Tuple")
+					|| cellName.trim().equals("Subsentential Revision Tuple Level 0"))
+				levelVersion = i;
+		}
+		
+		levelVersion = levelVersion - r1Index + 1;
+		
 		int sheet2End = header1.getLastCellNum();
-		int levels = (sheet2End - r1Index) / 3;
+		int levels = (sheet2End - r1Index) / levelVersion;
 
 		// Now starting to putting the sentence contents
 		for (int i = 1; i < sheet0.getPhysicalNumberOfRows(); i++) {
