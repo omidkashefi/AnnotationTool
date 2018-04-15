@@ -40,6 +40,8 @@ public class AnnotateBox extends JPanel{
 		table.put(purposeName, new EditUnitV2(purposeName,ColorConstants.getColor(RevisionPurpose.PRECISION)));
 		purposeName = RevisionPurpose.getPurposeName(RevisionPurpose.UNKNOWN);
 		table.put(purposeName, new EditUnitV2(purposeName,ColorConstants.getColor(RevisionPurpose.UNKNOWN)));
+		purposeName = RevisionPurpose.getPurposeName(RevisionPurpose.UNANNOTATED);
+		table.put(purposeName, new EditUnitV2(purposeName,ColorConstants.getColor(RevisionPurpose.UNANNOTATED)));
 		
 		//force selecting only one check box
 		Iterator<String> it = table.keySet().iterator();
@@ -171,7 +173,7 @@ public class AnnotateBox extends JPanel{
 			table.get(it.next()).reload(-1);
 		}
 		
-		if (rp != -1l)
+		if (rp != -1)
 		{
 			String name = RevisionPurpose.getPurposeName(rp);
 			table.get(name).reload(RevisionOp.ADD);

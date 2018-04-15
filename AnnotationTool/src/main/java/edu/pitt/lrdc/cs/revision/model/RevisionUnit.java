@@ -32,7 +32,7 @@ public class RevisionUnit {
 
 	// Revision operation and revision purpose
 	private int revision_op = -1; // revision operation
-	private int revision_purpose = -1; // revision purpose
+	private int revision_purpose = RevisionPurpose.UNANNOTATED; // revision purpose
 
 	private int revision_index;// Well, we need this attribute _(:3ã€�âˆ )
 	private int revision_level;// Well, we need this too _(:3ã€�âˆ )

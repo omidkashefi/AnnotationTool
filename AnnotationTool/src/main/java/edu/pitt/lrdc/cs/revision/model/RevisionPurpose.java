@@ -17,6 +17,8 @@ public class RevisionPurpose {
 	public static final int PRECISION = 10;
 	public static final int END = 9;
 	public static final int CONTENT_ACCURACY = 14;
+	public static final int UNANNOTATED = 15;
+	
 	
 	public static final int NOCHANGE = 0;
 	public static final int SURFACE = 100;
@@ -57,6 +59,8 @@ public class RevisionPurpose {
 			return "Content";
 		} else if(index == RevisionPurpose.PRECISION) {
 			return "Precision";
+		} else if(index == RevisionPurpose.UNANNOTATED) {
+			return "Unannotated";
 		} else if(index == RevisionPurpose.UNKNOWN) {
 			return "Unknown";
 		}

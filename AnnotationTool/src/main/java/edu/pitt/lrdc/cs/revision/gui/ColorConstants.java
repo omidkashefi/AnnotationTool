@@ -39,6 +39,8 @@ public class ColorConstants {
 			return organizationColor;
 		} else if(revPurpose == RevisionPurpose.PRECISION) {
 			return precisionColor;
+		} else if(revPurpose == RevisionPurpose.UNANNOTATED) {
+			return unannotatedColor;
 		} else if(revPurpose == RevisionPurpose.UNKNOWN) {
 			return unknownColor;
 		}
