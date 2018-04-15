@@ -234,6 +234,7 @@ public class MainFrameV4 extends JFrame {
 		menuBar.add(menuHelp);
 		menuBar.add(menuDemo);
 		this.setJMenuBar(menuBar);
+		this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
 
 	}
 
