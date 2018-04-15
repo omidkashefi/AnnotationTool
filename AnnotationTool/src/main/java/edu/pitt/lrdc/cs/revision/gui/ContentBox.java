@@ -11,6 +11,7 @@ import javax.swing.text.Utilities;
 import org.apache.poi.poifs.property.Parent;
 
 import edu.pitt.lrdc.cs.revision.model.RevisionOp;
+import edu.pitt.lrdc.cs.revision.model.RevisionPurpose;
 import edu.pitt.lrdc.cs.revision.model.RevisionUnit;
 import edu.pitt.lrdc.cs.revision.model.Span;
 import edu.pitt.lrdc.cs.revision.model.SubsententialRevisionUnit;
@@ -175,7 +176,7 @@ public class ContentBox extends Box {
 		super(axis);
 		
 		this.pairPanelClicked = false;
-		sentenceLevelRevisionPurpose = -1;
+		sentenceLevelRevisionPurpose = RevisionPurpose.UNANNOTATED;
 		
 		this.parentPanel = parent;
 		
@@ -515,7 +516,10 @@ public class ContentBox extends Box {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				pairPanelClicked = true;
-				if (sentenceLevelRevisionPurpose != -1) {
+//				if (sentenceLevelRevisionPurpose != RevisionPurpose.UNANNOTATED) {
+					//make selected subsentnetial unit, unselected
+					currentUnit = null;
+
 					pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
 					pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
 					pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
@@ -526,7 +530,7 @@ public class ContentBox extends Box {
 
 					parentPanel.annotateBox.reload(sentenceLevelRevisionPurpose);
 
-				}
+	//			}
 			}
 			
 			@Override
@@ -535,7 +539,8 @@ public class ContentBox extends Box {
 				registerSubSententialAnnotation();
 				//if trying to annotate sentence level
 				if (pairPanelClicked) { 
-					pairPanelClicked = false;
+					if (sentenceLevelRevisionPurpose != RevisionPurpose.UNANNOTATED)
+						pairPanelClicked = false;
 					//get annotation selection
 					ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
 					if (!sul.isEmpty()) {
@@ -553,17 +558,18 @@ public class ContentBox extends Box {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				pairPanelClicked = true;
-				if (sentenceLevelRevisionPurpose != -1) {
-					pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
-					pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
-					pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
-					pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.BOLD));
+				//make selected subsentnetial unit, unselected
+				currentUnit = null;
 
-					oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
-					newSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				pairSentence1.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+				pairSentence2.setBackground(ColorConstants.getColor(sentenceLevelRevisionPurpose));
+				pairSentence1.setFont(pairSentence1.getFont().deriveFont(Font.BOLD));
+				pairSentence2.setFont(pairSentence2.getFont().deriveFont(Font.BOLD));
 
-					parentPanel.annotateBox.reload(sentenceLevelRevisionPurpose);
-				}
+				oldSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+				newSentence.setFont(pairSentence1.getFont().deriveFont(Font.PLAIN));
+
+				parentPanel.annotateBox.reload(sentenceLevelRevisionPurpose);
 			}
 			
 			@Override
@@ -572,7 +578,8 @@ public class ContentBox extends Box {
 				registerSubSententialAnnotation();
 				//if trying to annotate sentence level
 				if (pairPanelClicked) { 
-					pairPanelClicked = false;
+					if (sentenceLevelRevisionPurpose != RevisionPurpose.UNANNOTATED)
+						pairPanelClicked = false;
 					//get annotation selection
 					ArrayList<SelectionUnit> sul = parentPanel.annotateBox.getSelectedUnits();
 					if (!sul.isEmpty()) {
@@ -609,10 +616,6 @@ public class ContentBox extends Box {
 
 		//add current selection to the array
 		subsententialUnits.add(this.currentUnit);
-		
-		//make it unselected
-		this.currentUnit = null;
-
 	}
 	
 	private void findDiffnHighlight(String oldSent, String newSent) {
@@ -629,7 +632,7 @@ public class ContentBox extends Box {
 		String oldStr = "";
 		Boolean match = false;
 		Integer lastIndex = 0;
-
+		Span lastSpan = new Span(-1, -1);
 		//find the diff
 		for (diff_match_patch.Diff d : diff) {
 			if (d.operation == Operation.EQUAL) {
@@ -637,9 +640,11 @@ public class ContentBox extends Box {
 				oldStr += d.text;
 				match = false;
 			} else if (d.operation == Operation.DELETE) {
+				Span nd = new Span(-1, -1);
 				if (match) {
 					this.matchingToHighlight.put(oldStr.length(), lastIndex);
 					this.matchingToHighlightReverse.put(lastIndex, oldStr.length());
+					nd = lastSpan;
 				}
 				
 				match = !match;
@@ -647,11 +652,35 @@ public class ContentBox extends Box {
 				
 				oldStrToHighlight.put(lastIndex, d.text.length() - 1);
 				oldStr += d.text;
+				
+				Span od = new Span(lastIndex, lastIndex+d.text.length()-1);
+				lastSpan = new Span(lastIndex, lastIndex+d.text.length()-1);
+				
+				Boolean addUnit = true;
+				SubsententialRevisionUnit su = new SubsententialRevisionUnit(od, nd, RevisionPurpose.UNANNOTATED, RevisionOp.DELETE);
+				for (SubsententialRevisionUnit sru : subsententialUnits) {
+					if (sru.newDraft().contatins(su.newDraft().start())) {
+						if (su.oldDraft().start() == -1) {
+							addUnit = false;
+							break;
+						}
+						if (sru.oldDraft().start() == -1) {
+							//remove it
+							subsententialUnits.remove(sru);
+							subsententialUnits.add(su);
+							break;
+						}
+					}
+				}
+				if (addUnit)
+					subsententialUnits.add(su);
 
 			} else if (d.operation == Operation.INSERT) {
+				Span od = new Span(-1, -1);
 				if (match) {
 					this.matchingToHighlight.put(lastIndex, newStr.length());
 					this.matchingToHighlightReverse.put(newStr.length(), lastIndex);
+					od = lastSpan;
 				}
 				
 				match = !match;
@@ -659,6 +688,27 @@ public class ContentBox extends Box {
 
 				newStrToHighlight.put(lastIndex, d.text.length() - 1);
 				newStr += d.text;
+
+				Span nd = new Span(lastIndex, lastIndex+d.text.length()-1);
+				lastSpan = new Span(lastIndex, lastIndex+d.text.length()-1);
+
+				Boolean addUnit = true;
+				SubsententialRevisionUnit su = new SubsententialRevisionUnit(od, nd, RevisionPurpose.UNANNOTATED, RevisionOp.ADD);
+				for (SubsententialRevisionUnit sru : subsententialUnits) {
+					if (sru.oldDraft().contatins(su.oldDraft().start())) {
+						if (su.newDraft().start() == -1) {
+							addUnit = false;
+							break;
+						}
+						else if (sru.newDraft().start() == -1) {
+							//remove it
+							subsententialUnits.remove(sru);
+							break;
+						}
+					}
+				}
+				if (addUnit)
+					subsententialUnits.add(su);
 			}
 
 		}
@@ -686,7 +736,6 @@ public class ContentBox extends Box {
 		}
 	}
 	
-
 	// Javadoc comment follows
     /**
      * @deprecated
@@ -757,7 +806,7 @@ public class ContentBox extends Box {
 		
 		}
 		
-		if (ru.getRevision_purpose() != -1) {
+		if (ru.getRevision_purpose() != RevisionPurpose.UNANNOTATED) {
 			pairSentence1.setBackground(ColorConstants.getColor(ru.getRevision_purpose()));
 			pairSentence2.setBackground(ColorConstants.getColor(ru.getRevision_purpose()));
 			sentenceLevelRevisionPurpose = ru.getRevision_purpose();
@@ -765,7 +814,7 @@ public class ContentBox extends Box {
 		else {
 			pairSentence1.setBackground(Color.white);
 			pairSentence2.setBackground(Color.white);
-			sentenceLevelRevisionPurpose = -1;
+			sentenceLevelRevisionPurpose = RevisionPurpose.UNANNOTATED;
 		}
 			
 
